@@ -239,7 +239,12 @@ export default function RevealPage({
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-3 py-3">
+      <div
+        className={
+          "mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-3 " +
+          (shuffling ? "pb-20 pt-0" : "py-3")
+        }
+      >
         {error ? (
           <p className="w-full rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -256,14 +261,14 @@ export default function RevealPage({
                 </p>
               </div>
 
-              <div className="w-full overflow-hidden rounded-lg border border-border bg-card shadow-lg shuffle-glow">
+              <div className="shuffle-glow flex w-full justify-center overflow-hidden rounded-lg border border-border bg-card shadow-lg">
                 {shuffleMovie ? (
-                  <div key={animIndex} className="ticker-pop">
+                  <div key={animIndex} className="ticker-pop flex w-full justify-center">
                     {shuffleMovie.posterPath ? (
                       <img
                         src={tmdbPosterUrl(shuffleMovie.posterPath, "w500") ?? ""}
                         alt=""
-                        className="mx-auto block max-h-[45vh] w-auto object-contain"
+                        className="block max-h-[45vh] w-auto object-contain"
                       />
                     ) : (
                       <div className="flex h-64 w-full items-center justify-center bg-secondary">
