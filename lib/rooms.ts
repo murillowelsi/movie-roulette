@@ -133,6 +133,14 @@ export async function leaveRoom(user: User, roomId: string): Promise<void> {
   await remove(ref(db, `rooms/${roomId}/players/${user.uid}`));
 }
 
+export async function kickPlayer(
+  roomId: string,
+  targetUid: string
+): Promise<void> {
+  const db = firebaseDb();
+  await remove(ref(db, `rooms/${roomId}/players/${targetUid}`));
+}
+
 export async function rejoinRoom(
   user: User,
   roomId: string

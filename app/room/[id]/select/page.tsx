@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onValue, ref, update } from "firebase/database";
-import { AlertTriangle, Check, Dice5, Loader2, LogOut, Search, X } from "lucide-react";
+import { AlertTriangle, Check, Dice5, Loader2, LogOut, Search, UserMinus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { firebaseDb } from "@/lib/firebase";
 import {
   clearSelection,
   drawMovie,
+  kickPlayer,
   leaveRoom,
   setSelection,
   SELECTIONS_PER_PLAYER,
@@ -63,6 +64,7 @@ export default function SelectPage({
   const [searching, setSearching] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [kickingUid, setKickingUid] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
@@ -79,6 +81,10 @@ export default function SelectPage({
           setRoom(null);
           return;
         }
+        if (!leaving && value.players && !value.players[user.uid]) {
+          router.replace("/home?kicked=1");
+          return;
+        }
         setError(null);
         setRoom(value);
       },
@@ -88,7 +94,7 @@ export default function SelectPage({
       }
     );
     return () => unsub();
-  }, [roomId, user]);
+  }, [roomId, user, leaving, router]);
 
   useEffect(() => {
     if (!room || leaving) return;
@@ -244,6 +250,23 @@ export default function SelectPage({
       console.error("[select] leaveRoom failed", err);
     }
     router.push("/home");
+  };
+
+  const onKick = async (targetUid: string, targetName: string) => {
+    if (actionBusy) return;
+    const ok = window.confirm(`Expulsar ${targetName} da sala?`);
+    if (!ok) return;
+    setKickingUid(targetUid);
+    setActionBusy(true);
+    try {
+      await kickPlayer(roomId, targetUid);
+    } catch (err) {
+      console.error("[select] kickPlayer failed", err);
+      setError("Falha ao expulsar jogador.");
+    } finally {
+      setActionBusy(false);
+      setKickingUid(null);
+    }
   };
 
   const onDraw = async () => {
@@ -444,6 +467,21 @@ export default function SelectPage({
                             `${picked}/${SELECTIONS_PER_PLAYER}`
                           )}
                         </span>
+                        {isOwner && uid !== room?.ownerId ? (
+                          <button
+                            type="button"
+                            onClick={() => onKick(uid, player.displayName ?? "este jogador")}
+                            disabled={actionBusy}
+                            aria-label={`Expulsar ${player.displayName ?? "jogador"}`}
+                            className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            {kickingUid === uid ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserMinus className="h-4 w-4" />
+                            )}
+                          </button>
+                        ) : null}
                       </div>
                       <div className="grid grid-cols-3 gap-1.5">
                         {slotList.map((movie, i) => (

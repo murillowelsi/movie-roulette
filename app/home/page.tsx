@@ -23,7 +23,17 @@ export default function HomePage() {
   const [busy, setBusy] = useState<"create" | "join" | "rejoin" | null>(null);
   const [rejoiningId, setRejoiningId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [kicked, setKicked] = useState(false);
   const [recentRooms, setRecentRooms] = useState<Record<string, RecentRoom>>({});
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("kicked") === "1") {
+      setKicked(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
@@ -126,6 +136,19 @@ export default function HomePage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3">
+        {kicked ? (
+          <div className="flex items-start justify-between gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+            <span>O host te removeu da sala.</span>
+            <button
+              type="button"
+              onClick={() => setKicked(false)}
+              aria-label="Dispensar aviso"
+              className="text-xs opacity-70 hover:opacity-100"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
         {error ? (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}

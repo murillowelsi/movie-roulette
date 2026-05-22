@@ -3,12 +3,12 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onValue, ref } from "firebase/database";
-import { Crown, Flag, Loader2, LogOut, RotateCw, Trophy } from "lucide-react";
+import { Crown, Flag, Loader2, LogOut, RotateCw, Trophy, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { firebaseDb } from "@/lib/firebase";
-import { endGame, leaveRoom, nextRound, recordPlayerStats } from "@/lib/rooms";
+import { endGame, kickPlayer, leaveRoom, nextRound, recordPlayerStats } from "@/lib/rooms";
 
 type Player = {
   displayName?: string;
@@ -34,8 +34,9 @@ export default function ResultsPage({
   const router = useRouter();
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"next" | "end" | "leave" | null>(null);
+  const [busy, setBusy] = useState<"next" | "end" | "leave" | "kick" | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const [kickingUid, setKickingUid] = useState<string | null>(null);
   const recordedRef = useRef(false);
 
   useEffect(() => {
@@ -52,6 +53,10 @@ export default function ResultsPage({
           setError("Sala não encontrada.");
           return;
         }
+        if (!leaving && !room?.gameOver && value.players && !value.players[user.uid]) {
+          router.replace("/home?kicked=1");
+          return;
+        }
         setError(null);
         setRoom(value);
       },
@@ -61,7 +66,7 @@ export default function ResultsPage({
       }
     );
     return () => unsub();
-  }, [roomId, user]);
+  }, [roomId, user, leaving, router, room?.gameOver]);
 
   useEffect(() => {
     if (!room || !user || leaving) return;
@@ -121,6 +126,23 @@ export default function ResultsPage({
       console.error("[results] leaveRoom failed", err);
     }
     router.push("/home");
+  };
+
+  const onKick = async (targetUid: string, targetName: string) => {
+    if (busy) return;
+    const ok = window.confirm(`Expulsar ${targetName} da sala?`);
+    if (!ok) return;
+    setBusy("kick");
+    setKickingUid(targetUid);
+    try {
+      await kickPlayer(roomId, targetUid);
+    } catch (err) {
+      console.error("[results] kickPlayer failed", err);
+      setError("Falha ao expulsar jogador.");
+    } finally {
+      setBusy(null);
+      setKickingUid(null);
+    }
   };
 
   const onEnd = async () => {
@@ -206,6 +228,21 @@ export default function ResultsPage({
                     </p>
                   </div>
                   <span className="font-mono text-lg font-semibold">{p.score}</span>
+                  {isOwner && !isGameOver && p.uid !== room.ownerId ? (
+                    <button
+                      type="button"
+                      onClick={() => onKick(p.uid, p.displayName ?? "este jogador")}
+                      disabled={busy !== null}
+                      aria-label={`Expulsar ${p.displayName ?? "jogador"}`}
+                      className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {busy === "kick" && kickingUid === p.uid ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <UserMinus className="h-4 w-4" />
+                      )}
+                    </button>
+                  ) : null}
                 </div>
               );
             })}

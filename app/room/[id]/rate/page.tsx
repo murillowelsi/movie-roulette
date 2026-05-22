@@ -56,6 +56,10 @@ export default function RatePage({
           setError("Sala não encontrada.");
           return;
         }
+        if (!leaving && value.players && !value.players[user.uid]) {
+          router.replace("/home?kicked=1");
+          return;
+        }
         setError(null);
         setRoom(value);
       },
@@ -65,7 +69,7 @@ export default function RatePage({
       }
     );
     return () => unsub();
-  }, [roomId, user]);
+  }, [roomId, user, leaving, router]);
 
   useEffect(() => {
     if (!room || leaving) return;

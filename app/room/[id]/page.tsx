@@ -3,12 +3,12 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onValue, ref, update } from "firebase/database";
-import { Check, Copy, Loader2, LogOut, Play } from "lucide-react";
+import { Check, Copy, Loader2, LogOut, Play, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { firebaseDb } from "@/lib/firebase";
-import { leaveRoom } from "@/lib/rooms";
+import { kickPlayer, leaveRoom } from "@/lib/rooms";
 
 type Player = {
   displayName?: string;
@@ -33,8 +33,9 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [busy, setBusy] = useState<"ready" | "start" | "leave" | null>(null);
+  const [busy, setBusy] = useState<"ready" | "start" | "leave" | "kick" | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const [kickingUid, setKickingUid] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
@@ -51,6 +52,10 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           setRoom(null);
           return;
         }
+        if (!leaving && value.players && !value.players[user.uid]) {
+          router.replace("/home?kicked=1");
+          return;
+        }
         setError(null);
         setRoom(value);
       },
@@ -60,7 +65,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       }
     );
     return () => unsub();
-  }, [roomId, user]);
+  }, [roomId, user, leaving, router]);
 
   useEffect(() => {
     if (leaving) return;
@@ -149,6 +154,23 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     router.push("/home");
   };
 
+  const onKick = async (targetUid: string, targetName: string) => {
+    if (busy) return;
+    const ok = window.confirm(`Expulsar ${targetName} da sala?`);
+    if (!ok) return;
+    setBusy("kick");
+    setKickingUid(targetUid);
+    try {
+      await kickPlayer(roomId, targetUid);
+    } catch (err) {
+      console.error("[room] kickPlayer failed", err);
+      setError("Falha ao expulsar jogador.");
+    } finally {
+      setBusy(null);
+      setKickingUid(null);
+    }
+  };
+
   return (
     <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
       <header className="flex items-center justify-between pb-3">
@@ -208,6 +230,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                   const p = players[uid];
                   const isHost = uid === room.ownerId;
                   const ready = !!p.ready;
+                  const canKick = isOwner && !isHost;
                   return (
                     <div key={uid} className="flex items-center gap-3">
                       {p.photoURL ? (
@@ -241,6 +264,21 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                           {ready ? "Pronto" : "Aguardando"}
                         </span>
                       )}
+                      {canKick ? (
+                        <button
+                          type="button"
+                          onClick={() => onKick(uid, p.displayName ?? "este jogador")}
+                          disabled={busy !== null}
+                          aria-label={`Expulsar ${p.displayName ?? "jogador"}`}
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {busy === "kick" && kickingUid === uid ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <UserMinus className="h-4 w-4" />
+                          )}
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })}
