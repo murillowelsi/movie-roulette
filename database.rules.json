@@ -1,0 +1,52 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "invites": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && data.child('players').child(auth.uid).exists()",
+        ".write": "auth != null && (!data.exists() || data.child('ownerId').val() === auth.uid)",
+
+        "players": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+
+        "rounds": {
+          "$round": {
+            ".read": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()",
+
+            "selections": {
+              "$uid": {
+                ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($roomId).child('status').val() === 'selecting'"
+              }
+            },
+
+            "ratings": {
+              "$uid": {
+                ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($roomId).child('status').val() === 'rating'"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

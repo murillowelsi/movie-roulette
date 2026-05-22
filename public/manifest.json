@@ -1,0 +1,21 @@
+{
+  "name": "Movie Roulette",
+  "short_name": "Roulette",
+  "description": "Escolha filmes em grupo no estilo roleta — vote e descubra qual assistir.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#dc2654",
+  "categories": ["entertainment", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

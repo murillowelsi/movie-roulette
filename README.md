@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Movie Roulette
 
-## Getting Started
+PWA mobile-first para escolher filmes em grupo no estilo roleta — cada jogador sugere 3 filmes, um é sorteado, todo mundo avalia, quem sugeriu boa coisa ganha pontos.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · Firebase Auth + RTDB · TMDB · PWA via `@ducanh2912/next-pwa`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup local
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Firebase**
+   - Crie um projeto em https://console.firebase.google.com
+   - Ative **Authentication → Google** como provider
+   - Ative **Realtime Database** (não Firestore)
+   - **Aplique as rules:** abra Console → Realtime Database → aba **Rules**, cole o conteúdo de [`database.rules.json`](./database.rules.json) e clique em **Publish**. Sem isso o app dá `PERMISSION_DENIED` no primeiro login.
+   - Copie a config web (`projectSettings → SDK setup → Config`)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **TMDB**
+   - Pegue uma API key em https://www.themoviedb.org/settings/api
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Env**
+   ```bash
+   cp .env.local.example .env.local
+   # preencha as variáveis
+   ```
 
-## Learn More
+4. **Dev**
+   ```bash
+   npm run dev
+   ```
+   PWA fica **desabilitado em dev** por design — para testar o service worker rode `npm run build && npm start`.
 
-To learn more about Next.js, take a look at the following resources:
+## Estado da implementação
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Veja [`docs/STATUS.md`](docs/STATUS.md) para o que está pronto e o que vem em seguida.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## TODO de assets
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Gerar PNG 192×192 e 512×512 a partir de `public/icons/icon.svg` (necessário para install no iOS). Sugestão: `npx pwa-asset-generator public/icons/icon.svg public/icons` ou ferramenta equivalente.
