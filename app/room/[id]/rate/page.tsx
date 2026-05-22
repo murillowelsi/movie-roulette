@@ -139,8 +139,8 @@ export default function RatePage({
   };
 
   return (
-    <main className="flex flex-1 flex-col px-6 py-8">
-      <header className="flex items-center justify-between pb-6">
+    <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
+      <header className="flex items-center justify-between pb-3">
         <h1 className="text-lg font-semibold">Sua nota</h1>
         <Button
           variant="ghost"
@@ -153,7 +153,7 @@ export default function RatePage({
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3">
         {error ? (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -242,24 +242,29 @@ export default function RatePage({
           </Card>
         )}
 
-        {isOwner ? (
-          <Button
-            size="lg"
-            variant={allSubmitted ? "default" : "secondary"}
-            className="w-full"
-            onClick={onFinish}
-            disabled={!allSubmitted || busy}
-          >
-            {busy ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : allSubmitted ? (
-              "Encerrar rodada"
-            ) : (
-              `Aguardando ${raters.length - submittedCount} avaliações`
-            )}
-          </Button>
-        ) : null}
       </div>
+
+      {isOwner ? (
+        <div className="sticky bottom-0 -mx-6 mt-3 border-t border-border bg-background/95 px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+          <div className="mx-auto w-full max-w-md">
+            <Button
+              size="lg"
+              variant={allSubmitted ? "default" : "secondary"}
+              className="w-full"
+              onClick={onFinish}
+              disabled={!allSubmitted || busy}
+            >
+              {busy ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : allSubmitted ? (
+                "Encerrar rodada"
+              ) : (
+                `Aguardando ${raters.length - submittedCount} avaliações`
+              )}
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

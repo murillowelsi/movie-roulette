@@ -221,8 +221,8 @@ export default function RevealPage({
   };
 
   return (
-    <main className="flex flex-1 flex-col px-6 py-8">
-      <header className="flex items-center justify-between pb-6">
+    <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
+      <header className="flex items-center justify-between pb-3">
         <h1 className="text-lg font-semibold">Sorteio</h1>
         <Button
           variant="ghost"
@@ -235,7 +235,7 @@ export default function RevealPage({
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-6">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-3 py-3">
         {error ? (
           <p className="w-full rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -259,7 +259,7 @@ export default function RevealPage({
                       <img
                         src={tmdbPosterUrl(shuffleMovie.posterPath, "w500") ?? ""}
                         alt=""
-                        className="h-auto w-full"
+                        className="mx-auto block max-h-[45vh] w-auto object-contain"
                       />
                     ) : (
                       <div className="flex h-64 w-full items-center justify-center bg-secondary">
@@ -292,7 +292,7 @@ export default function RevealPage({
                   <img
                     src={tmdbPosterUrl(draw.movie.posterPath, "w500") ?? ""}
                     alt={draw.movie.title}
-                    className="h-auto w-full"
+                    className="mx-auto block max-h-[45vh] w-auto object-contain"
                   />
                 ) : (
                   <div className="flex h-64 w-full items-center justify-center bg-secondary">
@@ -327,37 +327,44 @@ export default function RevealPage({
                 </CardContent>
               </Card>
 
-              {!isFinished && isOwner ? (
-                <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={onStartRating}
-                  disabled={busy}
-                >
-                  {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : "Começar avaliação"}
-                </Button>
-              ) : null}
-              {!isFinished && !isOwner ? (
-                <p className="text-center text-xs text-muted-foreground">
-                  O host iniciará a avaliação em instantes.
-                </p>
-              ) : null}
-              {isFinished ? (
-                <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={() => router.push(`/room/${roomId}/results`)}
-                >
-                  Ver placar
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              ) : null}
             </>
           )
         ) : (
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         )}
       </div>
+
+      {draw && !shuffling ? (
+        <div className="sticky bottom-0 -mx-6 mt-3 border-t border-border bg-background/95 px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+          <div className="mx-auto flex w-full max-w-md flex-col gap-2">
+            {!isFinished && isOwner ? (
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={onStartRating}
+                disabled={busy}
+              >
+                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : "Começar avaliação"}
+              </Button>
+            ) : null}
+            {!isFinished && !isOwner ? (
+              <p className="text-center text-xs text-muted-foreground">
+                O host iniciará a avaliação em instantes.
+              </p>
+            ) : null}
+            {isFinished ? (
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={() => router.push(`/room/${roomId}/results`)}
+              >
+                Ver placar
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

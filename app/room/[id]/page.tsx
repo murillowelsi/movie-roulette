@@ -150,8 +150,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   };
 
   return (
-    <main className="flex flex-1 flex-col px-6 py-8">
-      <header className="flex items-center justify-between pb-6">
+    <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
+      <header className="flex items-center justify-between pb-3">
         <h1 className="text-lg font-semibold">Sala</h1>
         <Button
           variant="ghost"
@@ -164,7 +164,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3">
         {error ? (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -247,60 +247,65 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
               </CardContent>
             </Card>
 
-            <div className="flex flex-col gap-2">
-              {!isOwner ? (
-                <Button
-                  size="lg"
-                  variant={me?.ready ? "secondary" : "default"}
-                  className="w-full"
-                  onClick={toggleReady}
-                  disabled={busy !== null}
-                >
-                  {busy === "ready" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : me?.ready ? (
-                    "Cancelar pronto"
-                  ) : (
-                    <>
-                      <Check className="h-5 w-5" />
-                      Estou pronto
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={startGame}
-                  disabled={!canStart || busy !== null}
-                >
-                  {busy === "start" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Play className="h-5 w-5" />
-                      Iniciar jogo
-                    </>
-                  )}
-                </Button>
-              )}
-
-              {isOwner && !canStart ? (
-                <p className="text-center text-xs text-muted-foreground">
-                  {playerIds.length < 2
-                    ? "Aguardando pelo menos 1 outro jogador entrar."
-                    : "Aguardando todos os convidados marcarem Pronto."}
-                </p>
-              ) : null}
-              {!isOwner ? (
-                <p className="text-center text-xs text-muted-foreground">
-                  Só o host pode iniciar o jogo.
-                </p>
-              ) : null}
-            </div>
           </>
         ) : null}
       </div>
+
+      {room ? (
+        <div className="sticky bottom-0 -mx-6 mt-3 border-t border-border bg-background/95 px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+          <div className="mx-auto flex w-full max-w-md flex-col gap-2">
+            {!isOwner ? (
+              <Button
+                size="lg"
+                variant={me?.ready ? "secondary" : "default"}
+                className="w-full"
+                onClick={toggleReady}
+                disabled={busy !== null}
+              >
+                {busy === "ready" ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : me?.ready ? (
+                  "Cancelar pronto"
+                ) : (
+                  <>
+                    <Check className="h-5 w-5" />
+                    Estou pronto
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={startGame}
+                disabled={!canStart || busy !== null}
+              >
+                {busy === "start" ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <Play className="h-5 w-5" />
+                    Iniciar jogo
+                  </>
+                )}
+              </Button>
+            )}
+
+            {isOwner && !canStart ? (
+              <p className="text-center text-xs text-muted-foreground">
+                {playerIds.length < 2
+                  ? "Aguardando pelo menos 1 outro jogador entrar."
+                  : "Aguardando todos os convidados marcarem Pronto."}
+              </p>
+            ) : null}
+            {!isOwner ? (
+              <p className="text-center text-xs text-muted-foreground">
+                Só o host pode iniciar o jogo.
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

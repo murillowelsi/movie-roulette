@@ -136,8 +136,8 @@ export default function ResultsPage({
   };
 
   return (
-    <main className="flex flex-1 flex-col px-6 py-8">
-      <header className="flex items-center justify-between pb-6">
+    <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
+      <header className="flex items-center justify-between pb-3">
         <h1 className="text-lg font-semibold">{isGameOver ? "Fim de jogo" : "Placar"}</h1>
         <Button
           variant="ghost"
@@ -150,7 +150,7 @@ export default function ResultsPage({
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3">
         {error ? (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -212,48 +212,49 @@ export default function ResultsPage({
           </CardContent>
         </Card>
 
-        {isGameOver ? (
-          <Button size="lg" className="w-full" onClick={() => router.push("/home")}>
-            Voltar para a home
-          </Button>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {isOwner ? (
-              <>
-                <Button size="lg" className="w-full" onClick={onNext} disabled={busy !== null}>
-                  {busy === "next" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <RotateCw className="h-5 w-5" />
-                      Nova rodada
-                    </>
-                  )}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-full"
-                  onClick={onEnd}
-                  disabled={busy !== null}
-                >
-                  {busy === "end" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Flag className="h-5 w-5" />
-                      Encerrar partida
-                    </>
-                  )}
-                </Button>
-              </>
-            ) : (
-              <p className="text-center text-xs text-muted-foreground">
-                Aguardando o host iniciar a próxima rodada ou encerrar a partida.
-              </p>
-            )}
-          </div>
-        )}
+      </div>
+
+      <div className="sticky bottom-0 -mx-6 mt-3 border-t border-border bg-background/95 px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="mx-auto w-full max-w-md">
+          {isGameOver ? (
+            <Button size="lg" className="w-full" onClick={() => router.push("/home")}>
+              Voltar para a home
+            </Button>
+          ) : isOwner ? (
+            <div className="flex flex-col gap-2">
+              <Button size="lg" className="w-full" onClick={onNext} disabled={busy !== null}>
+                {busy === "next" ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <RotateCw className="h-5 w-5" />
+                    Nova rodada
+                  </>
+                )}
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                onClick={onEnd}
+                disabled={busy !== null}
+              >
+                {busy === "end" ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <Flag className="h-5 w-5" />
+                    Encerrar partida
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <p className="text-center text-xs text-muted-foreground">
+              Aguardando o host iniciar a próxima rodada ou encerrar a partida.
+            </p>
+          )}
+        </div>
       </div>
     </main>
   );

@@ -259,8 +259,8 @@ export default function SelectPage({
   };
 
   return (
-    <main className="flex flex-1 flex-col px-6 py-8">
-      <header className="flex items-center justify-between pb-6">
+    <main className="flex flex-1 flex-col px-6 pt-4 pb-0">
+      <header className="flex items-center justify-between pb-3">
         <h1 className="text-lg font-semibold">Escolha 3 filmes</h1>
         <Button
           variant="ghost"
@@ -273,7 +273,7 @@ export default function SelectPage({
         </Button>
       </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3">
         {error ? (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -340,7 +340,7 @@ export default function SelectPage({
               ) : null}
             </div>
 
-            <div className="mt-3 max-h-[50vh] space-y-2 overflow-y-auto">
+            <div className="mt-3 max-h-[35vh] space-y-2 overflow-y-auto">
               {results.length === 0 && !searching && query.trim().length >= MIN_QUERY_LENGTH ? (
                 <p className="px-1 py-4 text-center text-sm text-muted-foreground">
                   Nada encontrado.
@@ -473,9 +473,13 @@ export default function SelectPage({
           </Card>
         ) : null}
 
-        <div className="flex flex-col gap-2">
-          <p className="text-center text-sm text-muted-foreground">
+      </div>
+
+      <div className="sticky bottom-0 -mx-6 mt-3 border-t border-border bg-background/95 px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="mx-auto flex w-full max-w-md flex-col gap-2">
+          <p className="text-center text-xs text-muted-foreground">
             {readyCount}/{playerIds.length} prontos
+            {mySlotsFull || myReady ? null : " — escolha 3 filmes para confirmar"}
           </p>
 
           {mySlotsFull || myReady ? (
@@ -497,11 +501,7 @@ export default function SelectPage({
                 </>
               )}
             </Button>
-          ) : (
-            <p className="text-center text-xs text-muted-foreground">
-              Escolha 3 filmes para confirmar.
-            </p>
-          )}
+          ) : null}
 
           {isOwner ? (
             <Button
@@ -519,16 +519,6 @@ export default function SelectPage({
                 </>
               )}
             </Button>
-          ) : null}
-          {isOwner && !allReady ? (
-            <p className="text-center text-xs text-muted-foreground">
-              Disponível quando todos confirmarem.
-            </p>
-          ) : null}
-          {!isOwner ? (
-            <p className="text-center text-xs text-muted-foreground">
-              O host sorteará quando todos estiverem prontos.
-            </p>
           ) : null}
         </div>
       </div>
